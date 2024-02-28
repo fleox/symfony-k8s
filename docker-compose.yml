@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+  asymfony-app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    image: fleox/symfony-k8s
+    volumes:
+      - ./:/var/www/project/:cached
+    labels:
+      - "traefik.http.routers.leanfront.rule=Host(`local.lean.fr`)"
+      - traefik.http.routers.leanfront.entrypoints=http
+      - traefik.http.services.leanfront.loadbalancer.server.port=80
+    networks:
+      - traefik
+
+networks:
+  symfony:
+  traefik:
+    external: true

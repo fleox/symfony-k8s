@@ -1,0 +1,60 @@
+# Définition d'une demande de volume persistant (PersistentVolumeClaim - PVC) pour demander de l'espace de stockage persistant.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Mi  # Taille du volume persistant demandé
+
+---
+
+# Définition du déploiement d'un Pod MariaDB avec un volume persistant monté.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  replicas: 1  # Nombre de répliques de votre pod MariaDB
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:latest  # Version de l'image MariaDB à utiliser
+        env:
+        - name: MYSQL_ROOT_PASSWORD  # Variable d'environnement pour définir le mot de passe root de la base de données
+          value: try,2@Kme
+        ports:
+        - containerPort: 3306  # Port sur lequel le serveur MariaDB écoute
+          name: mysql
+        volumeMounts:
+        - name: mariadb-data
+          mountPath: /var/lib/mysql  # Chemin où les données de la base de données seront stockées dans le conteneur
+      volumes:  # Définition du volume persistant à monter dans le pod
+      - name: mariadb-data
+        persistentVolumeClaim:
+          claimName: mariadb-pvc  # Nom de la demande de volume persistant
+
+---
+
+# Définition d'un service pour exposer le Pod MariaDB à l'intérieur du cluster.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-service
+spec:
+  selector:
+    app: mariadb
+  ports:
+  - protocol: TCP
+    port: 3306  # Port du service
+    targetPort: 3306  # Port cible du pod MariaDB

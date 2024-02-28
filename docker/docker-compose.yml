@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  symfony-app:
+    build:
+      args:
+        - SYMFONY_ENV=prod
+      context: .
+      dockerfile: ./docker/Dockerfile
+    restart: unless-stopped
+
+volumes:
+  persistent:

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: symfony-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: symfony-app
+  template:
+    metadata:
+      labels:
+        app: symfony-app
+    spec:
+      containers:
+      - name: symfony-app
+        image: fleox/symfony-k8s:latest
+        ports:
+        - containerPort: 9000  # Expose le port 9000 de PHP-FPM
+        env:
+        - name: DATABASE_URL  # Définissez l'URL de connexion à la base de données MariaDB
+          value: mysql://root:try,2@Kme@mariadb-service:3306/app?serverVersion=10.11.2-MariaDB&charset=utf8mb4
