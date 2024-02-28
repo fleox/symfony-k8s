@@ -8,14 +8,23 @@ services:
     image: fleox/symfony-k8s
     volumes:
       - ./:/var/www/project/:cached
-    labels:
-      - "traefik.http.routers.leanfront.rule=Host(`local.lean.fr`)"
-      - traefik.http.routers.leanfront.entrypoints=http
-      - traefik.http.services.leanfront.loadbalancer.server.port=80
     networks:
-      - traefik
+      - symfony
+
+  mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "try,2@Kme"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - symfony
 
 networks:
   symfony:
-  traefik:
-    external: true
+
+volumes:
+  mariadb_data:
